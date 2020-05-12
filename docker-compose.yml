@@ -1,0 +1,50 @@
+version: '3'
+networks:
+  debezium:
+    driver: bridge
+services:
+  zookeeper:
+    image: debezium/zookeeper
+    ports:
+      - '2181:2181'
+      - '2888:2888'
+      - '3888:3888'
+    networks:
+      - debezium
+  kafka:
+    image: debezium/kafka
+    environment:
+      - ZOOKEEPER_CONNECT=zookeeper
+      - KAFKA_BROKER=kafka:9092
+    ports:
+      - '9092:9092'
+    depends_on:
+      - zookeeper
+    networks:
+      - debezium
+  connect:
+    image: debezium/connect
+    environment:
+      - 'BOOTSTRAP_SERVERS=kafka:9092'
+      - CONFIG_STORAGE_TOPIC=my-connect-configs
+      - OFFSET_STORAGE_TOPIC=my-connect-offsets
+    depends_on:
+      - kafka
+    ports:
+      - '8083:8083'
+    networks:
+      - debezium
+  mysql:
+    image: debezium/example-mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_ROOT_HOST=%
+      - TZ=UTC
+    volumes:
+      - './docker/mysql/data:/var/lib/mysql'
+      - './docker/logs/mysql/:/var/log/mysql'
+      - './docker/mysql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d'
+    ports:
+      - '3306:3306'
+    networks:
+      - debezium
