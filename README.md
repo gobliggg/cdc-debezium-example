@@ -12,7 +12,7 @@ CDC Debezium example based on Docker.
 ### Installing
 1. Clone this repository anywhere on your machine:
 ```
-git clone git@github.com:imansuparman/cdc-debezium-example.git
+git clone git@github.com:gobliggg/cdc-debezium-example.git
 ```
 
 2. Run docker compose build
